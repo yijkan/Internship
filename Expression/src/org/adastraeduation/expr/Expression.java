@@ -32,15 +32,31 @@ public class Expression {
 		System.out.println(e.eval());
 	}
 	public void test2() {
+		Var x = new Var("x", 3);
 		Expr e = new Mult(new Add(new Const(6), new Const(3)), x);
+		System.out.println(e.eval());
 	}
 	// xsin(6x)
 	public void test3() {
 		Var x = new Var("x", 0);
 		Expr e = new Mult(
-				new Sin(new Mult(new Const(6), x)), x);
+				new Sin(new Mult(new Const(Math.PI), x)), x);
+		System.out.println(e.eval());
 	}
 	
+	// x^2 + sqrt(y)
+	
+	public void test4() {
+		Var x = new Var("x", 2);
+		Var y = new Var("y", 9);
+		// 2^2 + sqrt(9) = 7
+		Expr e = new Add(new Power(x, new Const(2)), new Sqrt(y));
+		System.out.println(e.eval());
+		// 5^2 + sqrt(100) = 35
+		x.set(5);
+		y.set(100);
+		System.out.println(e.eval());
+	}
 	/*
 	 * Things to look up:
 	 * class Stack<>
@@ -63,5 +79,7 @@ public class Expression {
 		Expression e = new Expression();
 		e.test1();
 		e.test2();
+		e.test3();
+		e.test4();
 	}
 }
