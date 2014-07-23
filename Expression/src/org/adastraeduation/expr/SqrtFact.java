@@ -1,9 +1,6 @@
 package org.adastraeduation.expr;
 
 public class SqrtFact extends OpFact {
-	final private int precedence = 4;
-	final private boolean isUnary = true;
-	
 	public Expr make(Expr a) throws NegRoot {
 		return new Sqrt(a);
 	}

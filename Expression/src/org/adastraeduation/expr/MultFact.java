@@ -1,9 +1,6 @@
 package org.adastraeduation.expr;
 
-public class MultFact extends OpFact {
-	final private int precedence = 2;
-	final private boolean isUnary = false;
-	
+public class MultFact extends OpFact {	
 	public Expr make(Expr a) {
 		return null;
 	}
