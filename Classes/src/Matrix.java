@@ -2,7 +2,7 @@ import java.util.Stack;
 
 public class Matrix {
 	public static void main(String[] args) 
-			throws MismatchingMatrices, BadMatrixDimensions, LinDepRows {
+			throws MismatchingMatrices, BadMatrixDimensions, BadVectorDimensions, LinDepRows {
 		/*
 		Matrix m1 = new Matrix(2,3);
 		m1.set(0, 0, 2);
@@ -67,17 +67,28 @@ public class Matrix {
 		System.out.println("FINAL SOLVE\nVariables\n" + m5.solve());
 		*/
 		
-		Matrix m6 = new Matrix(3,2);
+		Matrix m6 = new Matrix(3,3);
 		
-		m6.set(0,1,5);
-		m6.set(1,1,6);
-		m6.set(2,1,4);
+		m6.set(0,0,5);
+		m6.set(1,0,6);
+		m6.set(2,0,3);
 		
-		m6.set(0,0,0);
-		m6.set(1,0,3);
-		m6.set(2,0,1);
+		m6.set(0,1,6);
+		m6.set(1,1,3);
+		m6.set(2,1,2);
 		
-		System.out.println("FINAL SOLVE\nVariables\n" + m6.solve());
+		m6.set(0,2,1);
+		m6.set(1,2,2);
+		m6.set(2,2,1);
+		
+		Matrix I6 = m6.LU();
+		Matrix a = new Matrix(1,3);
+		
+		a.set(0,0,4);
+		a.set(0,1,1);
+		a.set(0,2,1);
+		
+		m6.solve(I6, a);
 	}
 	
 	private double[] m;
@@ -165,172 +176,83 @@ public class Matrix {
 		return a;
 	}
 	
-	public Matrix elim() throws BadMatrixDimensions, LinDepRows {
-		Matrix x = new Matrix(getCols(), getRows());
-		x = this;
-		// Matrix must have one more column than it has rows
-		if (x.getCols() - 1 != x.getRows()) {
+	public Matrix LU() throws BadMatrixDimensions {		
+		//Matrix must be square
+		if (getCols() != getRows()) {
 			throw new BadMatrixDimensions();
 		}
 		
-		if (x.getRows() == 1) {
-			/*If there is only one row, we can solve for a variable by 
-			 * dividing the right side by the left side
-			 * Return the variable value in the form of a 1 x 1 matrix 
+		/* Create an identity Matrix of the same size
+		 */
+		Matrix I = new Matrix(getCols(), getRows());
+		for (int x = 0; x < I.getCols(); x++) {
+			I.set(x, x, 1.0);
+		}
+		
+		System.out.println("Original Matrix\n" + this + "\n");
+		
+		//Row reduction
+		for (int x = 0; x < getCols()-1; x++) {
+			
+		/* Partial Pivoting...not yet
+			// Find the largest value in column x.
+			// max = largest value in column x
+			// pos = row containing largest value 
+			double max = get(x, x);
+			int pos = x;
+			for (int y = x+1; y < getRows(); y++) {
+				if (max < Math.abs(get(x,y))) {
+					max = get(x,y);
+					pos = y;
+				}
+			}
+			// Swap rows of this & p so pos is now in row x
+			for (int i = x; i < getCols(); i++) {
+				double temp1 = get(i, x);
+				set(i, x, get(i, pos));
+				set(i, pos, temp1);
+				
+				double temp2 = p.get(i, x);
+				p.set(i, x, p.get(i, pos));
+				p.set(i, pos, temp2);
+			}
+			System.out.println("Swapped Matrix\n" + this);
+			System.out.println(p + "\n");
+		*/
+			
+			/* Eliminate column x in each row by subtracting
+			 * column x of the row of "this"
+			 * times the entry in the same column from row x
+			 * divided by column x in row x of "this"
+			 * from each entry in the matrix 
 			 */
-			Matrix m = new Matrix(1, 1);
-			if (x.get(0,0) == 0) {
-				throw new LinDepRows();
+			//Start in row x+1, column x
+			for (int j = x+1; j < getRows(); j++) {
+				for (int i = x; i < getCols(); i++) {
+					I.set(i, j, I.get(i, j) - get(x,j) * I.get(i, x) / I.get(x,x) );
+					if (i==x) {
+						continue; // don't touch column x of this yet
+					} 
+					set(i, j, get(i, j) - get(x,j) * get(i, x) / get(x,x) );
+				}
+				// Manually set column x in each row after row x of this to 0
+				set(x, j, 0);
 			}
-			m.set(0, 0, x.get(1, 0) / x.get(0,0));
-			System.out.println("Variable: " + m + "\n");
-			return m;
+			System.out.println("Eliminated Matrix\n" + this);
+			System.out.println(I + "\n");
 		}
-		
-		// Find the largest value in the first column
-		double max = x.get(0, 0);
-		int pos = 0;
-		for (int i = 1; i < x.getRows(); i++) {
-			if (max < x.get(0,i)) {
-				max = x.get(0,1);
-				pos = i;
-			}
-		}
-		
-		/* Eliminate the first column in each row by subtracting the 
-		 * first column of the row 
-		 * times the entry in the same column in the row with the largest leftmost entry
-		 * divided by the largest leftmost entry
-		 * from each entry in the matrix 
-		 */
-		for (int j = 0; j < x.getRows(); j++) {
-			if (j == pos) {
-				continue;
-			}
-			double temp = x.get(0,j);
-			for (int i = 0; i < x.getCols(); i++) {
-				x.set(i, j, x.get(i, j) - temp * x.get(i, pos) / max );
-			}
-		}
-		/* Set the row with the largest leftmost entry entry equal to zero
-		 * Don't want to do this during the loop since it will mess with the other calcs
-		 */
-		for (int i = 0; i < x.getCols(); i++) {
-			x.set(i, pos, 0.0);
-		}
-		
-		// Shift all rows up to fill in the "pos" row
-		for (int j = pos; j < x.getRows() - 1; j++) {
-			for (int i = 0; i < x.getCols(); i++) {
-				x.set(i, j, x.get(i, j+1));
-			}
-		}
-		
-		// Create a new, smaller matrix
-		Matrix m = new Matrix(x.getCols()-1, x.getRows()-1);
-		// Fill it with the entries that have not been eliminated
-		for (int j = 0; j < m.getRows(); j++) {
-			for (int i = 0; i < m.getCols(); i++) {
-				m.set(i, j, x.get(i + 1, j));
-			}
-		}
-		// System.out.println("Shrunken Matrix\n" + m + "\n");
-		return m.elim();
+		return I;
 	}
-	
-	public Matrix solve() throws BadMatrixDimensions, LinDepRows {
-		System.out.println("Matrix inputted\n" + this + "\n");
-		Matrix s;
-		//Top left cannot be zero. Switch rows if this is the case.
-			/*First, check to make sure the first column isn't all zeros. 
-			/Shift matrix left & omit last row if this is the case*/
-		
-		boolean zeroCol = true;
-		for (int j = 0; j < getRows(); j++) {
-			if (get(0,j) != 0) {
-				zeroCol = false;
-				System.out.println("Leftmost column is NOT all zeros\n");
-				break;
-			}
+	public Matrix solve(Matrix lu, Matrix a) throws BadVectorDimensions, MismatchingMatrices {
+		System.out.println("SOLVE");
+		// Answer "vector" must be 1 x Cols
+		if (getCols() != a.getRows() || a.getCols() != 1) {
+			throw new BadVectorDimensions();
 		}
 		
-		if (get(0,0) != 0) {
-			s = this;
-		} else if (zeroCol) {
-			s = new Matrix(getCols()-1, getRows()-1);
-			for (int j = 0; j < s.getRows(); j++) {
-				for (int i = 0; i < s.getCols(); i++) {
-					s.set(i, j, get(i+1,j));
-				}
-			}
-		} else {
-			System.out.println("Top left is zero. Rows will be shifted\n");
-			s = new Matrix(getCols(), getRows());
-			for (int x = 1; x < getRows(); x++) {
-				if (get(0,x) != 0) {
-					for (int i = 0; i < getCols(); i++) {
-						s.set(i, 0, get(i,x));
-						s.set(i, x, get(i,0));
-						
-						for (int j = 1; j < x; j++) {
-							s.set(i, j, get(i,j));
-						}
-						for (int j = x + 1; j < getRows(); j++) {
-							s.set(i, j, get(i,j));
-						}
-					}
-					break;
-				}
-			}
-			
-		}
-		
-		// # rows = # variables
-		int numVars = getRows();
-		Stack<Matrix> vars = new Stack<Matrix>();
-		
-		for (int count = 0; count < numVars; count++) {
-			/* Create a new, smaller matrix with all columns except the one at the right
-			 * identical to the previous 
-			 */
-			Matrix t = new Matrix(s.getCols()-1, s.getRows()-1);
-			for (int j = 0; j < t.getRows(); j++) {
-				for (int i = 0; i < t.getCols()-1; i++) {
-					// All columns except the last in the new matrix are the same as the old
-					t.set(i, j, s.get(i,j));
-				}
-			}
-			// Create a temporary 2-column matrix to save the two right columns
-			Matrix temp = new Matrix(2, t.getRows());
-			for (int j = 0; j < t.getRows(); j++) {
-				temp.set(0, j, s.get(s.getCols()-2, j));
-				temp.set(1, j, s.get(s.getCols()-1, j));
-			}
-			
-			System.out.println("Matrix To Shrink\n" + s + "\n");
-			System.out.println("Matrix t\n" + t + "\n");
-			System.out.println("Matrix temp\n" + temp + "\n");
-			
-			vars.add(s.elim());
-			
-			for (int j = 0; j < t.getRows(); j++) {
-				/* The last column of the new matrix
-				 *  = Last column of old matrix - 
-				 *  (second to last column of old matrix * most recent variable)
-				 */
-				t.set(t.getCols()-1, j, temp.get(1, j) - (temp.get(0, j) * vars.peek().get(0,0)));
-			}
-			// Set s = t so the new matrix will be used during the next iteration
-			s = t;
-		}
-		
-		// Create a matrix to represent solved variable values. 
-		Matrix m = new Matrix(numVars, 1);
-		// Fill in the matrix with the solved variable values
-		for (int i = 0; i < numVars; i++) {
-			m.set(i, 0, vars.pop().get(0,0));
-		}
-		return m;
+		// Answer is lu * a
+		System.out.println(lu + "\n*\n" + a + "\n=\n" + mult(lu, a) + "\n");
+		return mult(lu, a);
 	}
 }
 
@@ -339,6 +261,10 @@ class MismatchingMatrices extends Exception {
 }
 
 class BadMatrixDimensions extends Exception {
+	
+}
+
+class BadVectorDimensions extends Exception {
 	
 }
 
