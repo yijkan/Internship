@@ -7,11 +7,18 @@ package org.adastraeduation.expr;
 public class Sqrt extends Expr {
 	private Expr a;
 	
-	public Sqrt(Expr a) {
+	public Sqrt(Expr a) throws NegRoot {
+		if (a.eval() < 0) {
+			throw new NegRoot();
+		}
 		this.a = a;
 	}
 	
 	public double eval() {
 		return Math.sqrt(a.eval());
 	}
+}
+
+class NegRoot extends Exception {
+	
 }
