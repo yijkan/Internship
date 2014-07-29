@@ -6,12 +6,16 @@ import java.util.Stack;
 
 public class Expression {
 	private HashMap<String, Var> vars;
+	Stack<Expr> operands = new Stack<Expr>();
+	Stack<OpFact> operators = new Stack<OpFact>();
 	
 	
 	public class Var extends Expr {
 		private double val;
+		private String name;
 		public Var(String name, double initialValue) {
 			val = initialValue;
+			this.name = name;
 			vars.put(name, this);
 		}
 		public double eval() {
@@ -21,14 +25,17 @@ public class Expression {
 		public void set(double v) {
 			val = v;
 		}
+		
+		public void infix(StringBuilder sb) {
+			sb.append(name);
+		}
 	}
+	
 	public Expression() {
 		vars = new HashMap<String, Var>();
 	}
 	
 	public Expr parseRPN(String in) throws DivByZero, NegRoot, OpMismatch {
-		Stack<Expr> operands = new Stack<Expr>();
-
 		Scanner s = new Scanner(in);
 		while (s.hasNext()) {
 			String n = s.next();
@@ -37,17 +44,18 @@ public class Expression {
 			}
 			// Operator if-else statements - All need to have EmptyStack error if empty
 			else if (n.equals("^")) {
-				double e = operands.pop().eval();
-				operands.add(new Power(operands.pop(), new Const(e)));
+				Expr temp = operands.pop();
+				operands.add(new Power(operands.pop(), temp));
 			} else if (n.equals("+")) {
 				operands.add(new Add(operands.pop(), operands.pop()));
 			} else if (n.equals("-")) {
-				operands.add(new Sub(operands.pop(), operands.pop()));
+				Expr temp = operands.pop();
+				operands.add(new Sub(operands.pop(), temp));
 			} else if (n.equals("*")) {
 				operands.add(new Mult(operands.pop(), operands.pop()));
 			} else if (n.equals("/")) {
-				double den = operands.pop().eval();
-				operands.add(new Div(operands.pop(), new Const(den)));
+				Expr temp = operands.pop();
+				operands.add(new Div(operands.pop(), temp));
 			} else if (n.equals("sin")) {
 				operands.add(new Sin(operands.pop()));
 			} else if (n.equals("cos")) {
@@ -77,9 +85,6 @@ public class Expression {
 			String[] par2 = par1[1].split(")");
 		} */
 		
-		Stack<Expr> operands = new Stack<Expr>();
-		Stack<OpFact> operators = new Stack<OpFact>();
-		
 		Scanner s = new Scanner(in);
 		while (s.hasNext()) {
 			String n = s.next();
@@ -88,62 +93,47 @@ public class Expression {
 			} 
 			// Operator if-else statements
 			else if (n.equals("+")) {
-				if (!operators.empty() && operators.peek().getPrec() >= new AddFact().getPrec()) {
-					if (operators.peek().isUnary()) {
-						operands.push(operators.pop().make(operands.pop()));
-					} else {
-						operands.push(operators.pop().make(operands.pop(), operands.pop()));
-					}
+				OpFact op = new AddFact(this);
+				if (!operators.empty() && operators.peek().getPrec() >= op.getPrec()) {
+					operands.push(operators.pop().make(this));
 				}
-				operators.push(new AddFact());
+				operators.push(op);
 			} else if (n.equals("-")) {
-				if (!operators.empty() && operators.peek().getPrec() >= new SubFact().getPrec()) {
-					if (operators.peek().isUnary()) {
-						operands.push(operators.pop().make(operands.pop()));
-					} else {
-						operands.push(operators.pop().make(operands.pop(), operands.pop()));
-					}
+				OpFact op = new SubFact(this);
+				if (!operators.empty() && operators.peek().getPrec() >= op.getPrec()) {
+					operands.push(operators.pop().make(this));
 				}
-				operators.push(new SubFact());
+				operators.push(op);
 			} else if (n.equals("*")) {
-				if (!operators.empty() && operators.peek().getPrec() >= new MultFact().getPrec()) {
-					if (operators.peek().isUnary()) {
-						operands.push(operators.pop().make(operands.pop()));
-					} else {
-						operands.push(operators.pop().make(operands.pop(), operands.pop()));
-					}
+				OpFact op = new MultFact(this);
+				if (!operators.empty() && operators.peek().getPrec() >= op.getPrec()) {
+					operands.push(operators.pop().make(this));
 				}
-				operators.push(new MultFact());
+				operators.push(op);
 			} else if (n.equals("/")) {
-				if (!operators.empty() && operators.peek().getPrec() >= new DivFact().getPrec()) {
-					if (operators.peek().isUnary()) {
-						operands.push(operators.pop().make(operands.pop()));
-					} else {
-						operands.push(operators.pop().make(operands.pop(), operands.pop()));
-					}
+				OpFact op = new DivFact(this);
+				if (!operators.empty() && operators.peek().getPrec() >= op.getPrec()) {
+					operands.push(operators.pop().make(this));
 				}
-				operators.push(new DivFact());
+				operators.push(op);
 			} else if (n.equals("^")) {
-				if (!operators.empty() && operators.peek().getPrec() >= new PowFact().getPrec()) {
-					if (operators.peek().isUnary()) {
-						operands.push(operators.pop().make(operands.pop()));
-					} else {
-						operands.push(operators.pop().make(operands.pop(), operands.pop()));
-					}
+				OpFact op = new PowFact(this);
+				if (!operators.empty() && operators.peek().getPrec() >= op.getPrec()) {
+					operands.push(operators.pop().make(this));
 				}
-				operators.push(new PowFact());
+				operators.push(op);
 			} 
 			/* Unary operators do not affect preceeding operands
 			 * They are of highest precedence, so just add the OpFact to the operators
 			 */
 			else if (n.equals("sqrt")) {
-				operators.push(new SqrtFact());
+				operators.push(new SqrtFact(this));
 			} else if (n.equals("sin")) {
-				operators.push(new SinFact());
+				operators.push(new SinFact(this));
 			} else if (n.equals("cos")) {
-				operators.push(new CosFact());
+				operators.push(new CosFact(this));
 			} else if (n.equals("tan")) {
-				operators.push(new TanFact());
+				operators.push(new TanFact(this));
 			}
 			// Otherwise it's a variable
 			else {
@@ -153,11 +143,7 @@ public class Expression {
 		s.close();
 		
 		while(!operators.empty()) {
-			if (operators.peek().isUnary()) {
-				operands.push(operators.pop().make(operands.pop()));
-			} else {
-				operands.push(operators.pop().make(operands.pop(), operands.pop()));
-			}
+			operands.push(operators.pop().make(this));
 		}
 		
 		if (operands.size() == 1) {
@@ -208,13 +194,19 @@ public class Expression {
 		Expr e2 = this.parse("2 * x / y"); 
 		Expr e3 = this.parse("x * y + 2");
 		Expr e4 = this.parse("x + y + 2");
+		Expr e5 = this.parse("2 ^ 3 - 2");
 		System.out.println(e1.eval() + " = 5?");
 		System.out.println(e2.eval() + " = 1.5?"); 
-		System.out.println(e3.eval() + " = 9?");
+		System.out.println(e3.eval() + " = 14?");
 		System.out.println(e4.eval() + " = 9?"); 
+		System.out.println(e5.eval() + " = 6?");
 		
-		Expr e5 = this.parseRPN("x y + 2 /");
-		System.out.println(e5.eval() + " = 3.5?");
+		Expr e11 = this.parseRPN("x y + 2 /"); // (x + y) / 2
+		System.out.println(e11.eval() + " = 3.5?"); 
+		Expr e12 = this.parseRPN("y 2 / x ^"); // (y / 2) ^ x
+		System.out.println(e12.eval() + " = 8");
+		Expr e13 = this.parseRPN("0 cos 4 *"); // cos(0) * 4
+		System.out.println(e13.eval() + " = 4"); 
 	}
 	/*
 	 * Things to look up:

@@ -1,18 +1,15 @@
 package org.adastraeduation.expr;
 
 public class TanFact extends OpFact {
-	public Expr make(Expr a) {
-		return new Tan(a);
+	public TanFact(Expression e) {
+		super(e);
 	}
 	
-	public Expr make(Expr a, Expr b) {
-		return null;
+	public Expr make(Expression e) {
+		return new Tan(e.operands.pop());
 	}
 	
 	public int getPrec() {
 		return 4;
-	}
-	public boolean isUnary() {
-		return true;
 	}
 }

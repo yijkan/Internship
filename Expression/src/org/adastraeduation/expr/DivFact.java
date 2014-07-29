@@ -1,21 +1,19 @@
 package org.adastraeduation.expr;
 
 public class DivFact extends OpFact {
-	public Expr make(Expr a) throws NegRoot {
-		return null;
+	public DivFact(Expression e) {
+		super(e);
 	}
 	
-	public Expr make(Expr a, Expr b) throws DivByZero {
-		/* Switch the two because a will be the one on top of the stack,
-		 * meaning it comes up later in the Expression 
+	public Expr make(Expression e) throws DivByZero {
+		/* Switch the two because the one on top of the stack is the dividend;
+		 * the one below it is the divisor
 		 */
-		return new Div(b,a);
+		Expr temp = e.operands.pop();
+		return new Div(e.operands.pop(), temp);
 	}
 	
 	public int getPrec() {
 		return 2;
-	}
-	public boolean isUnary() {
-		return false;
 	}
 }

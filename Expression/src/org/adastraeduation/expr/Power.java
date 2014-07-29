@@ -18,4 +18,12 @@ public class Power extends Expr {
 	public double eval() {
 		return Math.pow(b.eval(), e.eval());
 	}
+	
+	public void infix(StringBuilder sb) {
+		sb.append("(");
+		b.infix(sb);
+		sb.append(") / (");
+		e.infix(sb);
+		sb.append(")");
+	}
 }

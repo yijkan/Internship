@@ -1,22 +1,20 @@
 package org.adastraeduation.expr;
 
 public class PowFact extends OpFact{
-	public Expr make(Expr a) {
-		return null;
+	public PowFact(Expression e) {
+		super(e);
 	}
 	
-	public Expr make(Expr a, Expr b) {
-		/* Switch the two because a will be the one on top of the stack,
-		 * meaning it comes up later in the Expression 
+	public Expr make(Expression e) {
+		/* Switch the two because the one on top of the stack is the exponent;
+		 * the one below it is the base
 		 */
-		return new Power(b,a);
+		Expr temp = e.operands.pop();
+		return new Power(e.operands.pop(),temp);
 	}
 	
 	
 	public int getPrec() {
 		return 3;
-	}
-	public boolean isUnary() {
-		return false;
 	}
 }

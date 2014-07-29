@@ -18,6 +18,14 @@ public class Div extends Expr {
 	public double eval() {
 		return a.eval() / b.eval();
 	}
+	
+	public void infix(StringBuilder sb) {
+		sb.append("(");
+		a.infix(sb);
+		sb.append(") / (");
+		b.infix(sb);
+		sb.append(")");
+	}
 }
 
 class DivByZero extends Exception {

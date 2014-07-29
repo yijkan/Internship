@@ -1,19 +1,15 @@
 package org.adastraeduation.expr;
 
 public class SqrtFact extends OpFact {
-	public Expr make(Expr a) throws NegRoot {
-		return new Sqrt(a);
+	public SqrtFact(Expression e) {
+		super(e);
+	}
+	
+	public Expr make(Expression e) throws NegRoot {
+		return new Sqrt(e.operands.pop());
 	}
 
-	public Expr make(Expr a, Expr b){
-		return null;
-	}
-	
-	
 	public int getPrec() {
 		return 4;
-	}
-	public boolean isUnary() {
-		return true;
 	}
 }

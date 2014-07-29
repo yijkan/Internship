@@ -6,8 +6,12 @@ package org.adastraeduation.expr;
  *
  */
 public abstract class OpFact {
-	public abstract Expr make(Expr a) throws NegRoot; // Unary operators?
-	public abstract Expr make(Expr a, Expr b) throws DivByZero;
+	private Expression e;
+	
+	public OpFact(Expression e) {
+		this.e = e;
+	}
+
+	public abstract Expr make(Expression e) throws NegRoot, DivByZero;
 	public abstract int getPrec();
-	public abstract boolean isUnary();
 }

@@ -1,19 +1,15 @@
 package org.adastraeduation.expr;
 
 public class CosFact extends OpFact {
-	public Expr make(Expr a) {
-		return new Cos(a);
+	public CosFact(Expression e) {
+		super(e);
 	}
 	
-	public Expr make(Expr a, Expr b) {
-		return null;
+	public Expr make(Expression e) {
+		return new Cos(e.operands.pop());
 	}
-	
 	
 	public int getPrec() {
 		return 4;
-	}
-	public boolean isUnary() {
-		return true;
 	}
 }

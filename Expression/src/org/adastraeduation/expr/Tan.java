@@ -14,6 +14,11 @@ public class Tan extends Expr {
 	public double eval() {
 		return Math.tan(angle.eval());
 	}
-
+	
+	public void infix(StringBuilder sb) {
+		sb.append("tan(");
+		angle.infix(sb);
+		sb.append(")");
+	}
 
 }

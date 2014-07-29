@@ -15,5 +15,11 @@ public class Cos extends Expr {
 	public double eval() {
 		return Math.cos(angle.eval());
 	}
+	
+	public void infix(StringBuilder sb) {
+		sb.append("cos(");
+		angle.infix(sb);
+		sb.append(")");
+	}
 
 }

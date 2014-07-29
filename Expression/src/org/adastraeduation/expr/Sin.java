@@ -14,5 +14,11 @@ public class Sin extends Expr {
 	public double eval() {
 		return Math.sin(angle.eval());
 	}
+	
+	public void infix(StringBuilder sb) {
+		sb.append("sin(");
+		angle.infix(sb);
+		sb.append(")");
+	}
 
 }

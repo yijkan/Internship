@@ -17,6 +17,12 @@ public class Sqrt extends Expr {
 	public double eval() {
 		return Math.sqrt(a.eval());
 	}
+	
+	public void infix(StringBuilder sb) {
+		sb.append("sqrt(");
+		a.infix(sb);
+		sb.append(")");
+	}
 }
 
 class NegRoot extends Exception {

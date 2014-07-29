@@ -1,18 +1,15 @@
 package org.adastraeduation.expr;
 
 public class AddFact extends OpFact {
-	public Expr make(Expr a) {
-		return null;
+	public AddFact(Expression e) {
+		super(e);
 	}
 	
-	public Expr make(Expr a, Expr b) {
-		return new Add(a,b);
+	public Expr make(Expression e) {
+		return new Add(e.operands.pop(), e.operands.pop());
 	}
 	
 	public int getPrec() {
 		return 1;
-	}
-	public boolean isUnary() {
-		return false;
 	}
 }

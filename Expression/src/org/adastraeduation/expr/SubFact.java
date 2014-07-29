@@ -1,19 +1,19 @@
 package org.adastraeduation.expr;
 
 public class SubFact extends OpFact {
-	public Expr make(Expr a) {
-		return null;
+	public SubFact(Expression e) {
+		super(e);
 	}
 	
-	public Expr make(Expr a, Expr b) {
-		return new Sub(a,b);
+	public Expr make(Expression e) {
+		/* Switch the two because the one on top of the stack is subtracted
+		 * from the the one below it
+		 */
+		Expr temp = e.operands.pop();
+		return new Sub(e.operands.pop(), temp);
 	}
-	
 	
 	public int getPrec() {
 		return 1;
-	}
-	public boolean isUnary() {
-		return false;
 	}
 }

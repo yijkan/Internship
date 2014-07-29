@@ -17,4 +17,7 @@ public class Const extends Expr {
 	 */
 	Const(double v) { val = v; }
 	public double eval() { return val; }
+	public void infix(StringBuilder sb) {
+		sb.append(val);
+	}
 }
