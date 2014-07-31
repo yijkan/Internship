@@ -23,6 +23,25 @@ public class Sqrt extends Expr {
 		a.infix(sb);
 		sb.append(")");
 	}
+	
+	public void RPN(StringBuilder sb) {
+		a.RPN(sb);
+		sb.append("sqrt ");
+	}
+	
+	public void LaTeX(StringBuilder sb) {
+		sb.append("\\sqrt{");
+		a.LaTeX(sb);
+		sb.append("}");
+	}
+
+	public boolean contains(String var) {
+		return a.contains(var);
+	}
+	
+	public Expr diff(String var) throws DivByZero, NegRoot {
+		return new Mult(new Mult(new Const(0.5), new Div(new Const(1), new Sqrt(a))), a.diff(var));
+	}
 }
 
 class NegRoot extends Exception {

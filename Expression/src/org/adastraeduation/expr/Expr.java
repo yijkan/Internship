@@ -10,8 +10,11 @@ package org.adastraeduation.expr;
 public abstract class Expr {
 	public abstract double eval();
 	public abstract void infix(StringBuilder sb);
-	// public abstract void RPN(StringBuilder sb);
-	// public abstract void LaTeX(StringBuilder sb);
+	public abstract void RPN(StringBuilder sb);
+	public abstract void LaTeX(StringBuilder sb);
+	public abstract boolean contains(String var);
+	public abstract Expr diff(String var) throws DivByZero, NegRoot;
+	// public abstract Expr int();
 	// public abstract boolean equivalentTo(Expr e);
 	// public abstract void simplify();
 }

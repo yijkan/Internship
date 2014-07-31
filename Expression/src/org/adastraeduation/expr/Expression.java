@@ -26,8 +26,21 @@ public class Expression {
 			val = v;
 		}
 		
-		public void infix(StringBuilder sb) {
-			sb.append(name);
+		public void infix(StringBuilder sb) { sb.append(name); }
+		public void RPN(StringBuilder sb) { sb.append(name + " "); }
+		public void LaTeX(StringBuilder sb) { sb.append(name); }
+		
+		public boolean contains(String var) {
+			return vars.containsKey(var);
+		}
+
+		public Expr diff(String var) throws DivByZero {
+			Var v = vars.get(var);
+			if(this == v) {
+				return new Const(1);
+			} else {
+				return new Const(0);
+			}
 		}
 	}
 	
@@ -40,34 +53,38 @@ public class Expression {
 		while (s.hasNext()) {
 			String n = s.next();
 			if (n.charAt(0) >= '0' && n.charAt(0) <= '9') {
-				operands.add(new Const(Double.parseDouble(n)));
+				operands.push(new Const(Double.parseDouble(n)));
 			}
 			// Operator if-else statements - All need to have EmptyStack error if empty
 			else if (n.equals("^")) {
 				Expr temp = operands.pop();
-				operands.add(new Power(operands.pop(), temp));
+				operands.push(new Power(operands.pop(), temp));
 			} else if (n.equals("+")) {
-				operands.add(new Add(operands.pop(), operands.pop()));
+				operands.push(new Add(operands.pop(), operands.pop()));
 			} else if (n.equals("-")) {
 				Expr temp = operands.pop();
-				operands.add(new Sub(operands.pop(), temp));
+				operands.push(new Sub(operands.pop(), temp));
 			} else if (n.equals("*")) {
-				operands.add(new Mult(operands.pop(), operands.pop()));
+				operands.push(new Mult(operands.pop(), operands.pop()));
 			} else if (n.equals("/")) {
 				Expr temp = operands.pop();
-				operands.add(new Div(operands.pop(), temp));
+				operands.push(new Div(operands.pop(), temp));
 			} else if (n.equals("sin")) {
-				operands.add(new Sin(operands.pop()));
+				operands.push(new Sin(operands.pop()));
 			} else if (n.equals("cos")) {
-				operands.add(new Cos(operands.pop()));
+				operands.push(new Cos(operands.pop()));
 			} else if (n.equals("tan")) {
-				operands.add(new Tan(operands.pop()));
+				operands.push(new Tan(operands.pop()));
+			} else if (n.equals("sec")) {
+				operands.push(new Sec(operands.pop()));
+			} else if (n.equals("log")) {
+				operands.push(new Log(operands.pop()));
 			} else if (n.equals("sqrt")) {
-				operands.add(new Sqrt(operands.pop()));
+				operands.push(new Sqrt(operands.pop()));
 			}
 			// Otherwise it's a variable
 			else {
-				operands.add(vars.get(n));
+				operands.push(vars.get(n));
 			}
 		}
 		s.close();
@@ -133,6 +150,10 @@ public class Expression {
 			} else if (n.equals("cos")) {
 				operators.push(new CosFact(this));
 			} else if (n.equals("tan")) {
+				operators.push(new TanFact(this));
+			} else if (n.equals("sec")) {
+				operators.push(new TanFact(this));
+			} else if (n.equals("log")) {
 				operators.push(new TanFact(this));
 			}
 			// Otherwise it's a variable
@@ -226,6 +247,36 @@ public class Expression {
 	 * "6 4 + 3 x cos * +"
 	 * (4 + 6) + (3 * cos(x))
 	 */
+	
+	public void test6() throws DivByZero, NegRoot {
+		Var x = new Var("x", 1.0);
+		
+		System.out.println("(2 + x)^2");
+		Expr e1 = new Power(new Add(new Const(2), x), new Const(2));
+		StringBuilder infix1 = new StringBuilder();
+		e1.infix(infix1);
+		System.out.println("  " + infix1.toString());
+		StringBuilder RPN1 = new StringBuilder();
+		e1.RPN(RPN1);
+		System.out.println("  " + RPN1.toString());
+		StringBuilder LaTeX1 = new StringBuilder();
+		e1.LaTeX(LaTeX1);
+		System.out.println("  " + LaTeX1.toString());
+		
+		System.out.println("sqrt (x*cos(0))");
+		Expr e2 = new Sqrt(new Mult(x, new Cos(new Const(0))));
+		StringBuilder infix2 = new StringBuilder();
+		e2.infix(infix2);
+		System.out.println("  " + infix2.toString());
+		StringBuilder RPN2 = new StringBuilder();
+		e2.RPN(RPN2);
+		System.out.println("  " + RPN2.toString());
+		StringBuilder LaTeX2 = new StringBuilder();
+		e2.LaTeX(LaTeX2);
+		System.out.println("  " + LaTeX2.toString());
+		
+	}
+	
 	public static void main(String[] args) throws DivByZero, NegRoot, OpMismatch {
 		Expression e = new Expression();
 		
@@ -237,9 +288,10 @@ public class Expression {
 		e.test3();
 		System.out.println("Test 4:");
 		e.test4();
-		*/
 		System.out.println("Test 5:");
 		e.test5();
+		*/
+		e.test6();
 	}
 }
 

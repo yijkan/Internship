@@ -1,26 +1,22 @@
 package org.adastraeduation.expr;
-/**
- * Unary operator sine
- * @author yijinkang
- *
- */
-public class Sin extends Expr {
+
+public class Sec extends Expr {
 	private Expr angle;
 	
-	public Sin(Expr a) {
+	public Sec(Expr a) {
 		angle = a;
 	}
-	
+
 	public double eval() {
-		return Math.sin(angle.eval());
+		return 1.0 / new Cos(angle).eval();
 	}
-	
+
 	public void infix(StringBuilder sb) {
 		if (angle instanceof Const) {
-			sb.append("sin");
+			sb.append("sec");
 			angle.infix(sb);
 		} else {
-			sb.append("sin(");
+			sb.append("sec(");
 			angle.infix(sb);
 			sb.append(")");
 		}
@@ -28,15 +24,15 @@ public class Sin extends Expr {
 	
 	public void RPN(StringBuilder sb) {
 		angle.RPN(sb);
-		sb.append("sin ");
+		sb.append("sec ");
 	}
 	
 	public void LaTeX(StringBuilder sb) {
 		if (angle instanceof Const) {
-			sb.append("\\sin");
+			sb.append("\\sec");
 			angle.infix(sb);
 		} else {
-			sb.append("\\sin(");
+			sb.append("\\sec(");
 			angle.infix(sb);
 			sb.append(")");
 		}
@@ -47,7 +43,6 @@ public class Sin extends Expr {
 	}
 
 	public Expr diff(String var) throws DivByZero, NegRoot {
-		return new Mult(new Cos(angle), angle.diff(var));
+		return new Mult(new Mult(new Sec(angle), new Tan(angle)), angle.diff(var));
 	}
-
 }
