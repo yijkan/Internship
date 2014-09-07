@@ -69,4 +69,10 @@ public class Add extends Expr {
 	public Expr diff(String var) throws DivByZero, NegRoot {
 		return new Add(a.diff(var), b.diff(var));
 	}
+
+	/*public Expr integ(String var) {
+		return new Add(a.integ(var), b.integ(var));
+	}*/
+
+
 }

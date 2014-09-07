@@ -22,4 +22,5 @@ public class Const extends Expr {
 	public void LaTeX(StringBuilder sb) { sb.append(val); }
 	public boolean contains(String var) { return false; }
 	public Expr diff(String var) { return new Const (0); }
+	// public Expr integ(String var) { val * var }
 }

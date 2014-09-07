@@ -14,7 +14,7 @@ public abstract class Expr {
 	public abstract void LaTeX(StringBuilder sb);
 	public abstract boolean contains(String var);
 	public abstract Expr diff(String var) throws DivByZero, NegRoot;
-	// public abstract Expr int();
+	// public abstract Expr integ(String var);
 	// public abstract boolean equivalentTo(Expr e);
 	// public abstract void simplify();
 }

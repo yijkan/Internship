@@ -1,5 +1,3 @@
-import java.util.Stack;
-
 public class Matrix {
 	public static void main(String[] args) 
 			throws MismatchingMatrices, BadMatrixDimensions, BadVectorDimensions, LinDepRows {
@@ -81,14 +79,17 @@ public class Matrix {
 		m6.set(1,2,2);
 		m6.set(2,2,1);
 		
-		Matrix I6 = m6.LU();
+		/*Matrix I6 = m6.LU();
 		Matrix a = new Matrix(1,3);
 		
 		a.set(0,0,4);
 		a.set(0,1,1);
 		a.set(0,2,1);
 		
-		m6.solve(I6, a);
+		m6.solve(I6, a);*/
+		System.out.println("Mean: " + m6.getMean());
+		System.out.println("Variance: " + m6.getVar());
+		System.out.println("Covariance between cols 1 & 2: " + m6.getCoVar(0, 1));
 	}
 	
 	private double[] m;
@@ -138,6 +139,30 @@ public class Matrix {
 	public void set (int pos, double a) { m[pos] = a; }
 	//set the value stored in column x, row y
 	public void set (int x, int y, double a) { m[y * cols + x] = a; }
+	
+	//get the maximum value among those stored in the matrix
+	public double getMax() {
+		double max = this.m[0];
+		int i = 1;
+		while (i < this.m.length) {
+			if (max < this.m[i]) {
+				max = this.m[i];
+			}
+		}
+		return max;
+	}
+	
+	//get the minimum value among those stored in the matrix
+	public double getMin() {
+		double min = this.m[0];
+		int i = 1;
+		while (i > this.m.length) {
+			if (min < this.m[i]) {
+				min = this.m[i];
+			}
+		}
+		return min;
+	}
 	
 	public Matrix opp() {
 		Matrix a = new Matrix(cols, rows);
@@ -253,6 +278,45 @@ public class Matrix {
 		// Answer is lu * a
 		System.out.println(lu + "\n*\n" + a + "\n=\n" + mult(lu, a) + "\n");
 		return mult(lu, a);
+	}
+	
+	//Find the mean of all values stored in the Matrix
+	public double getMean() {
+		double sum = 0;
+		for (int i = 0; i < m.length; i++) {
+			sum += this.m[i];
+		}
+		return sum / this.m.length;
+	}
+	
+	//Find the variance of all values stored in Matrix
+	public double getVar() {
+		double mean = getMean();
+		double sumSqDiff = 0;
+		for (int i = 0; i < m.length; i++) {
+			double diff = m[i] - mean;
+			sumSqDiff += diff * diff;
+		}
+		return sumSqDiff / m.length;
+	}
+	
+	public double getCoVar(int col1, int col2) {
+		double col1Sum = 0;
+		double col2Sum = 0;
+		for (int i = 0; i < getRows(); i++) {
+			col1Sum += get(col1, i);
+			col2Sum += get(col2, i);
+		}
+		double col1Mean = col1Sum / getRows();
+		double col2Mean = col2Sum / getRows();
+		
+		double sum = 0;
+		for (int i = 0; i < getRows(); i++) {
+			double temp1 = get(col1, i) - col1Mean;
+			double temp2 = get(col2, i) - col2Mean;
+			sum += temp1 * temp2;
+		}
+		return sum / (getRows() - 1);
 	}
 }
 
